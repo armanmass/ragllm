@@ -7,11 +7,11 @@ if hf_token is None:
     raise ValueError("Missing HF_TOKEN environment variable. Please set it to your Hugging Face token.")
 login(hf_token)
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, GenerationConfig
 from retriever import top_k
 
 #model info
-MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct-GPTQ-Int4"
+MODEL_NAME = "google/flan-t5-base"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #load tokenizer and model
@@ -19,7 +19,7 @@ print('Loading tokenizer...')
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
 
 print('Loading model...')
-model = AutoModelForCausalLM.from_pretrained(
+model = AutoModelForSeq2SeqLM.from_pretrained(
     MODEL_NAME,
     torch_dtype=torch.float16,
     device_map="auto",
@@ -29,9 +29,16 @@ model = AutoModelForCausalLM.from_pretrained(
 generation_config = GenerationConfig(
     temperature=0.0, #0.0 for deterministic output
     top_p=1.0,       #ignored if do sample false
-    dosample=False,
+    do_sample=False,
     max_new_tokens=512
 )
+
+# Test the model with a simple prompt first
+test_input = tokenizer("Hello, how are you?", return_tensors="pt").to(device)
+with torch.no_grad():
+    test_output = model.generate(**test_input, max_new_tokens=20, do_sample=False)
+test_text = tokenizer.decode(test_output[0], skip_special_tokens=True)
+print(f"Model test output: {test_text}")
 
 #combine user query with top_k query to feed to model
 def build_prompt(question, top_chunks):
@@ -46,6 +53,8 @@ def build_prompt(question, top_chunks):
         f"{question}\n\n"
         "ANSWER:"
     )
+    prompt = f"Answer the question based on the context. If you cannot answer from the context, say 'I don't know'.\n\nContext: {context_blocks}\n\nQuestion: {question}"
+    print(prompt)
     return prompt
 
 def answer_question(question, k=5):
@@ -75,14 +84,15 @@ def answer_question(question, k=5):
     
     #decode response
     output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return output_text.strip()
 
     #extract answer from output
-    if "ANSWER:" in output_text:
-        answer = output_text.split("ANSWER:")[-1].strip()
-    else:
-        answer = output_text[len(prompt_text):].strip()
+    # if "ANSWER:" in output_text:
+    #     answer = output_text.split("ANSWER:")[-1].strip()
+    # else:
+    #     answer = output_text[len(prompt_text):].strip()
 
-    return answer
+    # return answer
 
 #cli
 if __name__ == "__main__":
