@@ -1,8 +1,11 @@
 import os
 import torch
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from huggingface_hub import login
-hf_token = os.environ.get("HF_TOKEN")
+hf_token = os.getenv("HF_TOKEN")
 if hf_token is None:
     raise ValueError("Missing HF_TOKEN environment variable. Please set it to your Hugging Face token.")
 login(hf_token)
