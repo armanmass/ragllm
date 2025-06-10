@@ -28,15 +28,15 @@ model = AutoModelForSeq2SeqLM.from_pretrained(
 #generation config
 generation_config = GenerationConfig(
     do_sample=False,
-    max_new_tokens=512
+    max_new_tokens=152 #512 context we index top 6 chunks of size 60 tokens each, so 360 context + 152 answer = 512 total
 )
 
 # Test the model with a simple prompt first
-test_input = tokenizer("Hello, how are you?", return_tensors="pt").to(device)
-with torch.no_grad():
-    test_output = model.generate(**test_input, max_new_tokens=20, do_sample=False)
-test_text = tokenizer.decode(test_output[0], skip_special_tokens=True)
-print(f"Model test output: {test_text}")
+# test_input = tokenizer("Hello, how are you?", return_tensors="pt").to(device)
+# with torch.no_grad():
+#     test_output = model.generate(**test_input, max_new_tokens=20, do_sample=False)
+# test_text = tokenizer.decode(test_output[0], skip_special_tokens=True)
+# print(f"Model test output: {test_text}")
 
 #combine user query with top_k query to feed to model
 def build_prompt(question, top_chunks):
@@ -46,7 +46,7 @@ def build_prompt(question, top_chunks):
     print(prompt)
     return prompt
 
-def answer_question(question, k=3):
+def answer_question(question, k=5):
     #retrieve top k chunks
     top_chunks = top_k(question, k=k)
     if not top_chunks:
@@ -60,7 +60,7 @@ def answer_question(question, k=3):
         prompt_text,
         return_tensors="pt",
         truncation=True,
-        max_length=tokenizer.model_max_length-generation_config.max_new_tokens
+        #max_length=tokenizer.model_max_length-generation_config.max_new_tokens
     ).to(device)
 
     #generate response

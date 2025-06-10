@@ -37,14 +37,16 @@ def embed_query(query):
     vec = embedder.encode(query, convert_to_numpy=True, show_progress_bar=False)
     return vec.astype(np.float32)
 
-def top_k(query, k=3):
+def top_k(query, k=6):
     q_vec = embed_query(query).reshape(1, -1)
     distances, indices = index.search(q_vec, k)
 
     results = []
+    print(indices)
     for idx in indices[0]:
         if 0 <= idx < len(METADATA):
             results.append(METADATA[idx])
+
     return results
 
 if __name__ == "__main__":
