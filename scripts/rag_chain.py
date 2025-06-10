@@ -8,7 +8,7 @@ if hf_token is None:
 login(hf_token)
 
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, GenerationConfig
-from retriever import top_k
+from scripts.retriever import top_k
 
 #model info
 MODEL_NAME = "google/flan-t5-large"
