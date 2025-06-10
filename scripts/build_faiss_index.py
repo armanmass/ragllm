@@ -42,7 +42,8 @@ for file_path in tqdm(chunk_files, desc='Embedding chunks'):
 
     metadata.append({
         'chunk_filepath': str(file_path),
-        'preview': text.replace('\n',' ')[:200] + ('...' if len(text) > 100 else '')
+        'preview': text.replace('\n',' ')[:200] + ('...' if len(text) > 100 else ''),
+        'full_text': text
     })
 
 emb_matrix = np.vstack(all_embeddings)

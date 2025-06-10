@@ -37,7 +37,7 @@ def embed_query(query):
     vec = embedder.encode(query, convert_to_numpy=True, show_progress_bar=False)
     return vec.astype(np.float32)
 
-def top_k(query, k=5):
+def top_k(query, k=3):
     q_vec = embed_query(query).reshape(1, -1)
     distances, indices = index.search(q_vec, k)
 

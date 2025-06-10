@@ -8,7 +8,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 CHUNKS_DIR = DATA_DIR.parent / "chunks"
-MAX_TOKENS = 1000
+MAX_TOKENS = 80
 LANG = 'gpt-3.5-turbo'
 
 os.makedirs(CHUNKS_DIR, exist_ok=True)

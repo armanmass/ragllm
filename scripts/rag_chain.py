@@ -11,7 +11,7 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, GenerationConfig
 from retriever import top_k
 
 #model info
-MODEL_NAME = "google/flan-t5-base"
+MODEL_NAME = "google/flan-t5-large"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #load tokenizer and model
@@ -27,8 +27,6 @@ model = AutoModelForSeq2SeqLM.from_pretrained(
 
 #generation config
 generation_config = GenerationConfig(
-    temperature=0.0, #0.0 for deterministic output
-    top_p=1.0,       #ignored if do sample false
     do_sample=False,
     max_new_tokens=512
 )
@@ -42,22 +40,13 @@ print(f"Model test output: {test_text}")
 
 #combine user query with top_k query to feed to model
 def build_prompt(question, top_chunks):
-    context_blocks = "\n\n".join([c['preview'] for c in top_chunks])
-    prompt = (
-        "You are a helpful assistant."
-        "Use the following CONTEXT to answer the question."
-        "If the answer cannot be found in the context, respond with 'I don't know'.\n\n"
-        "CONTEXT:\n"
-        f"{context_blocks}\n\n"
-        "QUESTION:\n"
-        f"{question}\n\n"
-        "ANSWER:"
-    )
-    prompt = f"Answer the question based on the context. If you cannot answer from the context, say 'I don't know'.\n\nContext: {context_blocks}\n\nQuestion: {question}"
+    context = [c['full_text'] for c in top_chunks]
+    context = "\n\n".join(context)
+    prompt = f"Context: {context}\n\nQuestion: {question}\n\nAnswer:"
     print(prompt)
     return prompt
 
-def answer_question(question, k=5):
+def answer_question(question, k=3):
     #retrieve top k chunks
     top_chunks = top_k(question, k=k)
     if not top_chunks:
@@ -101,7 +90,7 @@ if __name__ == "__main__":
         print("Usage: python rag_chain.py \"Your question here\" [top_k]")
         sys.exit(1)
     question = sys.argv[1]
-    answer = answer_question(question, k=int(sys.argv[2]) if len(sys.argv) > 2 else 5)
+    answer = answer_question(question, k=int(sys.argv[2]) if len(sys.argv) > 2 else 3)
     print("\n==== Answer ===\n")
     print(answer)
 
