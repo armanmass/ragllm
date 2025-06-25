@@ -78,14 +78,6 @@ def answer_question(question, k=5):
     output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return output_text.strip()
 
-    #extract answer from output
-    # if "ANSWER:" in output_text:
-    #     answer = output_text.split("ANSWER:")[-1].strip()
-    # else:
-    #     answer = output_text[len(prompt_text):].strip()
-
-    # return answer
-
 #cli
 if __name__ == "__main__":
     import sys
