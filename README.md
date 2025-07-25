@@ -1,4 +1,4 @@
-# Retrievment Augmented Generation
+# Retrieval-Augmented Generation
 
 Creates vector search database which is queried at prompt time and most relevant indexes will be added to context prior to generation. Good for internal systems with private documents. Currently only supports PDF documents. Context size is limited but can easily be scaled by changing model.
 ## Usage
